@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block page_title %}Search{% endblock %}
+{% block content %}
+<form method="get" style="margin-bottom:20px;display:flex;gap:10px">
+  <input name="q" value="{{ q }}" placeholder="Mill name, location, ya file name..." class="form-control" style="max-width:400px">
+  <button type="submit" class="btn btn-primary">Search</button>
+</form>
+{% if q %}
+<div class="card" style="margin-bottom:16px">
+  <div class="card-title">Mills ({{ mills|length }})</div>
+  {% if mills %}
+  <div class="mills-grid">
+    {% for m in mills %}
+    <a href="/mill/{{ m.id }}" class="mill-card">
+      <div class="mill-name">{{ m.name }}</div>
+      <div class="mill-meta">{{ m.location or '—' }} | {{ m.mill_type or '—' }}</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}<div style="color:#9ca3af;font-size:13px">Koi mill nahi mili.</div>{% endif %}
+</div>
+<div class="card">
+  <div class="card-title">Files ({{ files|length }})</div>
+  {% if files %}
+  <table class="file-table">
+    <thead><tr><th>File</th><th>Mill</th><th>Department</th><th>Version</th><th>Date</th><th></th></tr></thead>
+    <tbody>
+    {% for f in files %}
+    <tr>
+      <td>{{ f.filename }}</td>
+      <td><a href="/mill/{{ f.mill_id }}" style="color:#1d4ed8">{{ f.mill_name }}</a></td>
+      <td>{{ f.department }}</td>
+      <td>v{{ f.version }}</td>
+      <td>{{ f.uploaded_at[:10] }}</td>
+      <td><a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<div style="color:#9ca3af;font-size:13px">Koi file nahi mili.</div>{% endif %}
+</div>
+{% else %}
+<div class="alert alert-info">Mill name ya file name likhein search box mein.</div>
+{% endif %}
+{% endblock %}
