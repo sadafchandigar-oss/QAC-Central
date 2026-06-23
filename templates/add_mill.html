@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{% if edit %}Edit Mill{% else %}New Mill{% endif %}{% endblock %}
+{% block page_title %}{% if edit %}Mill Edit Karein{% else %}New Mill Add Karein{% endif %}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px">
+  <form method="post">
+    <div class="form-group">
+      <label class="form-label">Mill name *</label>
+      <input name="name" class="form-control" required value="{{ mill.name if mill else '' }}" placeholder="e.g. Mehmood Textile Mills">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">City / Location</label>
+        <input name="location" class="form-control" value="{{ mill.location if mill else '' }}" placeholder="e.g. Multan Unit 7">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mill type</label>
+        <select name="mill_type" class="form-control">
+          <option value="">Select type</option>
+          <option value="Weaving" {% if mill and mill.mill_type=='Weaving' %}selected{% endif %}>Weaving</option>
+          <option value="Spinning" {% if mill and mill.mill_type=='Spinning' %}selected{% endif %}>Spinning</option>
+          <option value="Open End" {% if mill and mill.mill_type=='Open End' %}selected{% endif %}>Open End</option>
+          <option value="Composite" {% if mill and mill.mill_type=='Composite' %}selected{% endif %}>Composite</option>
+          <option value="Other" {% if mill and mill.mill_type=='Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Contact person</label>
+        <input name="contact_person" class="form-control" value="{{ mill.contact_person if mill else '' }}" placeholder="e.g. Mr. Ahmed">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact phone</label>
+        <input name="contact_phone" class="form-control" value="{{ mill.contact_phone if mill else '' }}" placeholder="e.g. 0300-1234567">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea name="notes" class="form-control" rows="3" placeholder="e.g. 128 Picanol Summum looms...">{{ mill.notes if mill else '' }}</textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button type="submit" class="btn btn-primary">{% if edit %}Save changes{% else %}Mill add karein{% endif %}</button>
+      <a href="{{ '/mill/'+mill.id|string if mill else '/mills' }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
