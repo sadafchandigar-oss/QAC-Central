@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block topbar_actions %}
+<a href="/mill/add" class="btn btn-primary" style="margin-left:8px">+ New Mill</a>
+{% endblock %}
+{% block content %}
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-num">{{ total_mills }}</div><div class="stat-lbl">Total mills</div></div>
+  <div class="stat-card"><div class="stat-num">{{ total_projects }}</div><div class="stat-lbl">Total projects</div></div>
+  <div class="stat-card"><div class="stat-num">{{ files_month }}</div><div class="stat-lbl">Files this month</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#d97706">{{ pending }}</div><div class="stat-lbl">Pending proposals</div></div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 340px;gap:16px">
+  <div class="card">
+    <div class="card-title">Recent mills</div>
+    {% if mills %}
+    <div class="mills-grid">
+      {% for m in mills[:6] %}
+      <a href="/mill/{{ m.id }}" class="mill-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div><div class="mill-name">{{ m.name }}</div><div class="mill-meta">{{ m.location or 'Location not set' }}</div></div>
+          {% if m.mill_type %}<span class="badge badge-{{ m.mill_type.lower().replace(' ','') }}">{{ m.mill_type }}</span>{% endif %}
+        </div>
+        {% if m.contact_person %}<div class="mill-meta" style="margin-top:6px">{{ m.contact_person }}</div>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+    {% if mills|length > 6 %}<a href="/mills" style="display:block;margin-top:12px;font-size:13px;color:#1d4ed8">All {{ mills|length }} mills</a>{% endif %}
+    {% else %}
+    <div class="alert alert-info">Koi mill nahi. <a href="/mill/add" style="font-weight:600">Pehli mill add karein</a></div>
+    {% endif %}
+  </div>
+  <div class="card">
+    <div class="card-title">Activity log</div>
+    {% if recent_activity %}
+    {% for log in recent_activity %}
+    <div class="activity-item">
+      <div class="act-dot"></div>
+      <div>
+        <div class="act-text">{% if log.mill_name %}<strong>{{ log.mill_name }}</strong> — {% endif %}{{ log.action }}</div>
+        <div class="act-meta">{{ log.details }} · {{ log.done_at[:16] }}</div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="color:#9ca3af;font-size:13px">Koi activity nahi.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
