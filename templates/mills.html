@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Mills{% endblock %}
+{% block page_title %}All Mills{% endblock %}
+{% block topbar_actions %}
+<a href="/mill/add" class="btn btn-primary" style="margin-left:8px">+ New Mill</a>
+{% endblock %}
+{% block content %}
+<form method="get" style="margin-bottom:16px;display:flex;gap:10px">
+  <input name="q" value="{{ q }}" placeholder="Mill name ya city..." class="form-control" style="max-width:320px">
+  <button type="submit" class="btn btn-outline">Search</button>
+  {% if q %}<a href="/mills" class="btn btn-outline">Clear</a>{% endif %}
+</form>
+{% if mills_data %}
+<div class="mills-grid">
+  {% for item in mills_data %}{% set m = item.mill %}
+  <a href="/mill/{{ m.id }}" class="mill-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><div class="mill-name">{{ m.name }}</div><div class="mill-meta">{{ m.location or '—' }}</div></div>
+      {% if m.mill_type %}<span class="badge badge-{{ m.mill_type.lower().replace(' ','') }}">{{ m.mill_type }}</span>{% endif %}
+    </div>
+    {% if m.contact_person %}<div class="mill-meta">{{ m.contact_person }}{% if m.contact_phone %} · {{ m.contact_phone }}{% endif %}</div>{% endif %}
+    <div class="mill-footer">
+      <span class="tag">{{ item.file_count }} files</span>
+      <span class="tag">{{ item.proj_count }} projects</span>
+      <span class="tag">{{ m.created_at[:10] }}</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">{% if q %}"{{ q }}" se koi mill nahi mili. <a href="/mills">Sab mills</a>{% else %}Koi mill nahi. <a href="/mill/add">Add karein</a>{% endif %}</div>
+{% endif %}
+{% endblock %}
