@@ -118,7 +118,7 @@ def add_mill():
         log_activity(mid, 'Mill Added', f'New mill: {name}')
         conn.close()
         return redirect(url_for('mill_detail', mill_id=mid))
-    return render_template('add_mill.html')
+    return render_template('add_mill.html', mill=None, edit=False)
 
 @app.route('/mill/<int:mill_id>')
 def mill_detail(mill_id):
