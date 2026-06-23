@@ -48,4 +48,134 @@
     <div class="card" style="margin-bottom:16px">
       <div class="card-title" style="color:#5b21b6">Technical ({{ files_tech|length }})</div>
       {% if files_tech %}
-      <table class="file-table"><thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody>
+      <table class="file-table">
+        <thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+        {% for f in files_tech %}
+        <tr>
+          <td>{{ f.filename }}</td>
+          <td><span style="background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td>
+          <td>{{ f.uploaded_at[:10] }}</td>
+          <td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
+          <td>
+            <a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
+            <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="color:#9ca3af;font-size:13px">Koi technical file nahi.</div>
+      {% endif %}
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title" style="color:#065f46">Drawings ({{ files_draw|length }})</div>
+      {% if files_draw %}
+      <table class="file-table">
+        <thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+        {% for f in files_draw %}
+        <tr>
+          <td>{{ f.filename }}</td>
+          <td><span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td>
+          <td>{{ f.uploaded_at[:10] }}</td>
+          <td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
+          <td>
+            <a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
+            <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="color:#9ca3af;font-size:13px">Koi drawing nahi.</div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#92400e">Production ({{ files_prod|length }})</div>
+      {% if files_prod %}
+      <table class="file-table">
+        <thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+        {% for f in files_prod %}
+        <tr>
+          <td>{{ f.filename }}</td>
+          <td><span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td>
+          <td>{{ f.uploaded_at[:10] }}</td>
+          <td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
+          <td>
+            <a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
+            <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div style="color:#9ca3af;font-size:13px">Koi production file nahi.</div>
+      {% endif %}
+    </div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Projects</div>
+      <form method="post" action="/mill/{{ mill.id }}/project/add" style="margin-bottom:14px">
+        <div class="form-group"><input name="title" class="form-control" placeholder="Project title..." required></div>
+        <div class="form-row" style="margin-bottom:10px">
+          <select name="department" class="form-control">
+            <option value="">All depts</option>
+            <option value="Technical">Technical</option>
+            <option value="Drawings">Drawings</option>
+            <option value="Production">Production</option>
+          </select>
+          <select name="status" class="form-control">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <input name="description" class="form-control" placeholder="Description" style="margin-bottom:10px">
+        <button type="submit" class="btn btn-success btn-sm">+ Add</button>
+      </form>
+      {% for p in projects %}
+      <div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border:1px solid #e2e8f0">
+        <div style="display:flex;justify-content:space-between">
+          <div style="font-size:13px;font-weight:600">{{ p.title }}</div>
+          <form method="post" action="/project/delete/{{ p.id }}" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm" style="padding:2px 7px">X</button></form>
+        </div>
+        {% if p.description %}<div style="font-size:12px;color:#6b7280;margin-top:3px">{{ p.description }}</div>{% endif %}
+        <div style="display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          {% if p.department %}<span class="tag">{{ p.department }}</span>{% endif %}
+          <span class="badge badge-{{ p.status.lower().replace(' ','') }}">{{ p.status }}</span>
+          <form method="post" action="/project/update/{{ p.id }}" style="margin-left:auto">
+            <select name="status" class="form-control" style="padding:2px 6px;font-size:11px;height:auto" onchange="this.form.submit()">
+              <option {% if p.status=='Pending' %}selected{% endif %}>Pending</option>
+              <option {% if p.status=='In Progress' %}selected{% endif %}>In Progress</option>
+              <option {% if p.status=='Completed' %}selected{% endif %}>Completed</option>
+            </select>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <div style="color:#9ca3af;font-size:13px">Koi project nahi.</div>
+      {% endfor %}
+    </div>
+    <div class="card">
+      <div class="card-title">Activity</div>
+      {% for log in activity %}
+      <div class="activity-item">
+        <div class="act-dot"></div>
+        <div>
+          <div class="act-text">{{ log.action }}</div>
+          <div class="act-meta">{{ log.details }} · {{ log.done_at[:16] }}</div>
+        </div>
+      </div>
+      {% else %}
+      <div style="color:#9ca3af;font-size:13px">Koi activity nahi.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
