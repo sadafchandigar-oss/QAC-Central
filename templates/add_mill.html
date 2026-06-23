@@ -1,126 +1,48 @@
 {% extends "base.html" %}
-{% block title %}{{ mill.name }}{% endblock %}
-{% block page_title %}{{ mill.name }}{% endblock %}
-{% block topbar_actions %}
-<a href="/mill/{{ mill.id }}/edit" class="btn btn-outline btn-sm" style="margin-left:8px">Edit</a>
-<form method="post" action="/mill/{{ mill.id }}/delete" style="display:inline" onsubmit="return confirm('Delete karein?')">
-  <button class="btn btn-danger btn-sm" style="margin-left:6px">Delete</button>
-</form>
-{% endblock %}
+{% block title %}{% if edit %}Edit Mill{% else %}New Mill{% endif %}{% endblock %}
+{% block page_title %}{% if edit %}Mill Edit Karein{% else %}New Mill Add Karein{% endif %}{% endblock %}
 {% block content %}
-<div class="card" style="padding:14px 20px;margin-bottom:16px">
-  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
-    {% if mill.mill_type %}<span class="badge badge-{{ mill.mill_type.lower().replace(' ','') }}">{{ mill.mill_type }}</span>{% endif %}
-    {% if mill.location %}<span style="font-size:13px;color:#6b7280">{{ mill.location }}</span>{% endif %}
-    {% if mill.contact_person %}<span style="font-size:13px;color:#6b7280">{{ mill.contact_person }}</span>{% endif %}
-    {% if mill.contact_phone %}<span style="font-size:13px;color:#6b7280">{{ mill.contact_phone }}</span>{% endif %}
-    <span style="font-size:12px;color:#9ca3af;margin-left:auto">Added: {{ mill.created_at[:10] }}</span>
-  </div>
-  {% if mill.notes %}<div style="margin-top:10px;font-size:13px;color:#374151;padding-top:10px;border-top:1px solid #f1f5f9">{{ mill.notes }}</div>{% endif %}
-</div>
-<div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
-  <div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title">File Upload</div>
-      <form method="post" action="/mill/{{ mill.id }}/upload" enctype="multipart/form-data">
-        <div class="form-row" style="margin-bottom:12px">
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Department</label>
-            <select name="department" class="form-control">
-              <option value="Technical">Technical</option>
-              <option value="Drawings">Drawings</option>
-              <option value="Production">Production</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label class="form-label">Notes</label>
-            <input name="notes" class="form-control" placeholder="e.g. Final version...">
-          </div>
-        </div>
-        <div class="upload-zone" onclick="document.getElementById('fi').click()">
-          <input id="fi" type="file" name="files" multiple style="display:none" onchange="document.getElementById('ul').textContent=this.files.length+' file(s) selected'">
-          <div id="ul">Click karein ya files drag karein</div>
-          <div style="font-size:11px;margin-top:4px;color:#9ca3af">PDF, Excel, DWG, Word — sab supported</div>
-        </div>
-        <button type="submit" class="btn btn-primary" style="margin-top:10px">Upload</button>
-      </form>
+<div class="card" style="max-width:600px">
+  <form method="post">
+    <div class="form-group">
+      <label class="form-label">Mill name *</label>
+      <input name="name" class="form-control" required value="{{ mill.name if mill is defined and mill else '' }}" placeholder="e.g. Mehmood Textile Mills">
     </div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title" style="color:#5b21b6">Technical ({{ files_tech|length }})</div>
-      {% if files_tech %}
-      <table class="file-table"><thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody>
-      {% for f in files_tech %}
-      <tr><td>{{ f.filename }}</td><td><span style="background:#ede9fe;color:#5b21b6;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td><td>{{ f.uploaded_at[:10] }}</td><td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
-      <td><a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
-      <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form></td></tr>
-      {% endfor %}
-      </tbody></table>
-      {% else %}<div style="color:#9ca3af;font-size:13px">Koi file nahi.</div>{% endif %}
-    </div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title" style="color:#065f46">Drawings ({{ files_draw|length }})</div>
-      {% if files_draw %}
-      <table class="file-table"><thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody>
-      {% for f in files_draw %}
-      <tr><td>{{ f.filename }}</td><td><span style="background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td><td>{{ f.uploaded_at[:10] }}</td><td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
-      <td><a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
-      <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form></td></tr>
-      {% endfor %}
-      </tbody></table>
-      {% else %}<div style="color:#9ca3af;font-size:13px">Koi drawing nahi.</div>{% endif %}
-    </div>
-    <div class="card">
-      <div class="card-title" style="color:#92400e">Production ({{ files_prod|length }})</div>
-      {% if files_prod %}
-      <table class="file-table"><thead><tr><th>File</th><th>Version</th><th>Date</th><th>Notes</th><th></th></tr></thead><tbody>
-      {% for f in files_prod %}
-      <tr><td>{{ f.filename }}</td><td><span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px">v{{ f.version }}</span></td><td>{{ f.uploaded_at[:10] }}</td><td style="color:#6b7280;font-size:12px">{{ f.notes or '—' }}</td>
-      <td><a href="/file/download/{{ f.id }}" class="btn btn-outline btn-sm">Download</a>
-      <form method="post" action="/file/delete/{{ f.id }}" style="display:inline" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm">X</button></form></td></tr>
-      {% endfor %}
-      </tbody></table>
-      {% else %}<div style="color:#9ca3af;font-size:13px">Koi production file nahi.</div>{% endif %}
-    </div>
-  </div>
-  <div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title">Projects</div>
-      <form method="post" action="/mill/{{ mill.id }}/project/add" style="margin-bottom:14px">
-        <div class="form-group"><input name="title" class="form-control" placeholder="Project title..." required></div>
-        <div class="form-row" style="margin-bottom:10px">
-          <select name="department" class="form-control"><option value="">All depts</option><option value="Technical">Technical</option><option value="Drawings">Drawings</option><option value="Production">Production</option></select>
-          <select name="status" class="form-control"><option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option></select>
-        </div>
-        <input name="description" class="form-control" placeholder="Description" style="margin-bottom:10px">
-        <button type="submit" class="btn btn-success btn-sm">+ Add</button>
-      </form>
-      {% for p in projects %}
-      <div style="padding:10px;background:#f8fafc;border-radius:8px;margin-bottom:8px;border:1px solid #e2e8f0">
-        <div style="display:flex;justify-content:space-between">
-          <div style="font-size:13px;font-weight:600">{{ p.title }}</div>
-          <form method="post" action="/project/delete/{{ p.id }}" onsubmit="return confirm('Delete?')"><button class="btn btn-danger btn-sm" style="padding:2px 7px">X</button></form>
-        </div>
-        {% if p.description %}<div style="font-size:12px;color:#6b7280;margin-top:3px">{{ p.description }}</div>{% endif %}
-        <div style="display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap">
-          {% if p.department %}<span class="tag">{{ p.department }}</span>{% endif %}
-          <span class="badge badge-{{ p.status.lower().replace(' ','') }}">{{ p.status }}</span>
-          <form method="post" action="/project/update/{{ p.id }}" style="margin-left:auto">
-            <select name="status" class="form-control" style="padding:2px 6px;font-size:11px;height:auto" onchange="this.form.submit()">
-              <option {% if p.status=='Pending' %}selected{% endif %}>Pending</option>
-              <option {% if p.status=='In Progress' %}selected{% endif %}>In Progress</option>
-              <option {% if p.status=='Completed' %}selected{% endif %}>Completed</option>
-            </select>
-          </form>
-        </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">City / Location</label>
+        <input name="location" class="form-control" value="{{ mill.location if mill is defined and mill else '' }}" placeholder="e.g. Multan Unit 7">
       </div>
-      {% else %}<div style="color:#9ca3af;font-size:13px">Koi project nahi.</div>{% endfor %}
+      <div class="form-group">
+        <label class="form-label">Mill type</label>
+        <select name="mill_type" class="form-control">
+          <option value="">Select type</option>
+          <option value="Weaving" {% if mill is defined and mill and mill.mill_type=='Weaving' %}selected{% endif %}>Weaving</option>
+          <option value="Spinning" {% if mill is defined and mill and mill.mill_type=='Spinning' %}selected{% endif %}>Spinning</option>
+          <option value="Open End" {% if mill is defined and mill and mill.mill_type=='Open End' %}selected{% endif %}>Open End</option>
+          <option value="Composite" {% if mill is defined and mill and mill.mill_type=='Composite' %}selected{% endif %}>Composite</option>
+          <option value="Other" {% if mill is defined and mill and mill.mill_type=='Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
     </div>
-    <div class="card">
-      <div class="card-title">Activity</div>
-      {% for log in activity %}
-      <div class="activity-item"><div class="act-dot"></div><div><div class="act-text">{{ log.action }}</div><div class="act-meta">{{ log.details }} · {{ log.done_at[:16] }}</div></div></div>
-      {% else %}<div style="color:#9ca3af;font-size:13px">Koi activity nahi.</div>{% endfor %}
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Contact person</label>
+        <input name="contact_person" class="form-control" value="{{ mill.contact_person if mill is defined and mill else '' }}" placeholder="e.g. Mr. Ahmed">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contact phone</label>
+        <input name="contact_phone" class="form-control" value="{{ mill.contact_phone if mill is defined and mill else '' }}" placeholder="e.g. 0300-1234567">
+      </div>
     </div>
-  </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea name="notes" class="form-control" rows="3" placeholder="e.g. 128 Picanol Summum looms...">{{ mill.notes if mill is defined and mill else '' }}</textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button type="submit" class="btn btn-primary">{% if edit %}Save changes{% else %}Mill add karein{% endif %}</button>
+      <a href="{{ '/mill/'+mill.id|string if mill is defined and mill else '/mills' }}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}
