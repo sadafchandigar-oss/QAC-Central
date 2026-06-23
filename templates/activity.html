@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Activity Log{% endblock %}
+{% block page_title %}Activity Log{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-title">Recent activity (last 100)</div>
+  {% if logs %}
+  {% for log in logs %}
+  <div class="activity-item">
+    <div class="act-dot"></div>
+    <div style="flex:1">
+      <div class="act-text">
+        {% if log.mill_name %}<a href="/mill/{{ log.mill_id }}" style="color:#1d4ed8;font-weight:600">{{ log.mill_name }}</a> — {% endif %}
+        <strong>{{ log.action }}</strong>
+      </div>
+      <div class="act-meta">{{ log.details }} · {{ log.done_at }}</div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="color:#9ca3af;font-size:13px">Koi activity nahi abhi tak.</div>
+  {% endif %}
+</div>
+{% endblock %}
